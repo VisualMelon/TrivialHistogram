@@ -7,7 +7,7 @@
     using Axes;
 
     /// <summary>
-    /// Represents a series that can be bound to a collection of <see cref="RectangleItem"/>.
+    /// Represents a series that can be bound to a collection of <see cref="ContinuousHistogramItem"/>.
     /// </summary>
     public class ContinuousHistogramSeries : XYAxisSeries
     {
@@ -107,20 +107,20 @@
         public bool CanTrackerInterpolatePoints { get; set; }
         
         /// <summary>
-        /// Gets or sets the delegate used to map from <see cref="ItemsSeries.ItemsSource" /> to <see cref="RectangleItem" />. The default is <c>null</c>.
+        /// Gets or sets the delegate used to map from <see cref="ItemsSeries.ItemsSource" /> to <see cref="ContinuousHistogramSeries" />. The default is <c>null</c>.
         /// </summary>
         /// <value>The mapping.</value>
         /// <remarks>Example: series1.Mapping = item => new ContinuousHistogramItem((double)item.BinStart, (double)item.BinStart + item.BinWidth, (double)item.Count);</remarks>
         public Func<object, ContinuousHistogramItem> Mapping { get; set; }
 
         /// <summary>
-        /// Gets the list of rectangles.
+        /// Gets the list of ContinuousHistogramSeries.
         /// </summary>
         /// <value>A list of <see cref="ContinuousHistogramItem" />. This list is used if <see cref="ItemsSeries.ItemsSource" /> is not set.</value>
         public List<ContinuousHistogramItem> Items { get; } = new List<ContinuousHistogramItem>();
 
         /// <summary>
-        /// Gets the list of rectangles that should be rendered.
+        /// Gets the list of ContinuousHistogramSeries that should be rendered.
         /// </summary>
         /// <value>A list of <see cref="RectangleItem" />.</value>
         protected List<ContinuousHistogramItem> ActualItems => this.ItemsSource != null ? this.actualItems : this.Items;
@@ -335,6 +335,24 @@
             return null;
         }
         
+        /// <summary>
+        /// Renders the legend symbol on the specified rendering context.
+        /// </summary>
+        /// <param name="rc">The rendering context.</param>
+        /// <param name="legendBox">The legend rectangle.</param>
+        public override void RenderLegend(IRenderContext rc, OxyRect legendBox)
+        {
+            var xmid = (legendBox.Left + legendBox.Right) / 2;
+            var ymid = (legendBox.Top + legendBox.Bottom) / 2;
+            var height = (legendBox.Bottom - legendBox.Top) * 0.8;
+            var width = height;
+            rc.DrawRectangleAsPolygon(
+                new OxyRect(xmid - (0.5 * width), ymid - (0.5 * height), width, height),
+                this.GetSelectableColor(this.ActualFillColor),
+                this.StrokeColor,
+                this.StrokeThickness);
+        }
+
         /// <summary>
         /// Sets the default values.
         /// </summary>
