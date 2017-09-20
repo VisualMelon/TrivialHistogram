@@ -279,8 +279,8 @@
                 var s00 = this.Transform(item.RangeStart, 0);
                 var s11 = this.Transform(item.RangeEnd, item.Height);
 
-                var pointa = this.Orientate(new ScreenPoint(s00.X, s00.Y)); // re-orientate
-                var pointb = this.Orientate(new ScreenPoint(s11.X, s11.Y)); // re-orientate
+                var pointa = new ScreenPoint(s00.X, s00.Y);
+                var pointb = new ScreenPoint(s11.X, s11.Y);
                 var rectrect = new OxyRect(pointa, pointb);
 
                 rc.DrawClippedRectangle(clippingRect, rectrect, actualFillColor, StrokeColor, StrokeThickness);
@@ -425,6 +425,25 @@
         protected virtual string GetLabel(double v, int i, int j)
         {
             return v.ToString(this.LabelFormatString, this.ActualCulture);
+        }
+        
+        /// <summary>
+        /// Gets the clipping rectangle, transposed if the X axis is vertically orientated.
+        /// </summary>
+        /// <returns>The clipping rectangle.</returns>
+        protected new OxyRect GetClippingRect()
+        {
+            double minX = Math.Min(this.XAxis.ScreenMin.X, this.XAxis.ScreenMax.X);
+            double minY = Math.Min(this.YAxis.ScreenMin.Y, this.YAxis.ScreenMax.Y);
+            double maxX = Math.Max(this.XAxis.ScreenMin.X, this.XAxis.ScreenMax.X);
+            double maxY = Math.Max(this.YAxis.ScreenMin.Y, this.YAxis.ScreenMax.Y);
+
+            if (this.XAxis.IsVertical())
+            {
+                return new OxyRect(minY, minX, maxY - minY, maxX - minX);
+            }
+
+            return new OxyRect(minX, minY, maxX - minX, maxY - minY);
         }
 
         /// <summary>
